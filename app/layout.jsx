@@ -7,7 +7,6 @@ import { brand } from "../lib/content";
 import { organizationSchema, websiteSchema } from "../lib/schema";
 import JsonLd from "../components/JsonLd";
 import ScrollIndicator from "../components/ScrollIndicator";
-import CursorGlow from "../components/CursorGlow";
 
 export const metadata = {
   metadataBase: new URL("https://dotstory.io"),
@@ -36,7 +35,6 @@ export default function RootLayout({ children }) {
       <body>
         {children}
         <ScrollIndicator />
-        <CursorGlow />
       </body>
     </html>
   );
