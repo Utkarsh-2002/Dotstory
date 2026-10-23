@@ -1,0 +1,27 @@
+# Dotstory
+
+> Organic and paid growth for B2B tech companies above $10M ARR. Company
+> and personal brand, SEO/AEO/GEO, programmatic and paid media — planned,
+> built and run end to end.
+
+## Organic
+- [Company Brand & Content Strategy](https://dotstory.io/services/company-brand-content/)
+- [Personal Brand for Founders & Executives](https://dotstory.io/services/personal-brand/)
+- [SEO / AEO / GEO](https://dotstory.io/services/seo-aeo-geo/)
+
+## Paid
+- [Programmatic Advertising](https://dotstory.io/services/programmatic-advertising/)
+- [Paid Social & Search](https://dotstory.io/services/paid-social-search/)
+- [Paid Launchpad](https://dotstory.io/services/paid-launchpad/): first-campaign setup and launch
+
+## Resources
+- [What Is GEO?](https://dotstory.io/resources/what-is-geo/)
+- [Organic vs. Paid Growth for B2B Tech](https://dotstory.io/resources/organic-vs-paid-growth/)
+- [What Is Programmatic Advertising?](https://dotstory.io/resources/what-is-programmatic-advertising/)
+- [Growth Agency Cost for $10M+ ARR Tech Companies](https://dotstory.io/resources/growth-agency-cost/)
+
+## Company
+- [About](https://dotstory.io/about/)
+- [Case studies](https://dotstory.io/results/)
+- [FAQ](https://dotstory.io/faq/)
+- [Contact](https://dotstory.io/contact/)
