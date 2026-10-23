@@ -1,9 +1,11 @@
+import { Fragment } from "react";
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import CtaBand from "../../components/CtaBand";
 import Faq from "../../components/Faq";
 import JsonLd from "../../components/JsonLd";
+import ScrollBg, { BgMark } from "../../components/ScrollBg";
 import { Chip } from "../../components/ui";
 import * as c from "../../lib/content";
 import { SERVICE_GROUPS, getServicesByGroup } from "../../lib/services";
@@ -52,6 +54,7 @@ export default function ServicesPillar() {
       />
       <Nav brand={c.brand.name} links={c.nav} />
       <main>
+        <BgMark color="#fbfcf8" />
         <PageHero
           breadcrumbs={breadcrumbs}
           kicker="Services"
@@ -61,30 +64,34 @@ export default function ServicesPillar() {
           secondary={{ label: "See results", href: "/results/" }}
         />
 
-        {SERVICE_GROUPS.map((group) => (
-          <section className="section page-section" key={group.key}>
-            <div className="container">
-              <div className="service-group">
-                <div className="service-group-head">
-                  <Chip>{group.label}</Chip>
-                  <p className="lead">{group.blurb}</p>
-                </div>
-                <div className="service-grid">
-                  {getServicesByGroup(group.key).map((s) => (
-                    <a key={s.slug} href={`/services/${s.slug}/`} className="card service-card">
-                      <div>
-                        <h3>{s.name}</h3>
-                        <p>{s.short}</p>
-                      </div>
-                      <span className="link-u">Learn more →</span>
-                    </a>
-                  ))}
+        {SERVICE_GROUPS.map((group, i) => (
+          <Fragment key={group.key}>
+            <BgMark color={i % 2 ? "#eef1e4" : "#ffffff"} />
+            <section className="section page-section">
+              <div className="container">
+                <div className="service-group">
+                  <div className="service-group-head">
+                    <Chip>{group.label}</Chip>
+                    <p className="lead">{group.blurb}</p>
+                  </div>
+                  <div className="service-grid">
+                    {getServicesByGroup(group.key).map((s) => (
+                      <a key={s.slug} href={`/services/${s.slug}/`} className="card service-card">
+                        <div>
+                          <h3>{s.name}</h3>
+                          <p>{s.short}</p>
+                        </div>
+                        <span className="link-u">Learn more →</span>
+                      </a>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
+          </Fragment>
         ))}
 
+        <BgMark color="#eef1e4" />
         <Faq data={PILLAR_FAQ} />
 
         <CtaBand
@@ -93,8 +100,10 @@ export default function ServicesPillar() {
           primary={{ label: "Book a call", href: "/contact/" }}
           secondary={{ label: "See our work", href: "/results/" }}
         />
+        <BgMark color="#fbfcf8" />
       </main>
       <Footer brand={c.brand.name} data={c.footer} />
+      <ScrollBg />
     </>
   );
 }

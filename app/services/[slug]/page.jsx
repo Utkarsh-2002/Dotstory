@@ -5,6 +5,8 @@ import PageHero from "../../../components/PageHero";
 import CtaBand from "../../../components/CtaBand";
 import Faq from "../../../components/Faq";
 import JsonLd from "../../../components/JsonLd";
+import ScrollBg, { BgMark } from "../../../components/ScrollBg";
+import ScrollZoom from "../../../components/ScrollZoom";
 import { Icon } from "../../../components/ui";
 import * as c from "../../../lib/content";
 import { SERVICES, getServiceBySlug } from "../../../lib/services";
@@ -49,6 +51,7 @@ export default async function ServiceSubpage({ params }) {
       />
       <Nav brand={c.brand.name} links={c.nav} />
       <main>
+        <BgMark color="#fbfcf8" />
         <PageHero
           breadcrumbs={breadcrumbs}
           kicker={groupLabel}
@@ -58,6 +61,15 @@ export default async function ServiceSubpage({ params }) {
           secondary={{ label: "All services", href: "/services/" }}
         />
 
+        <BgMark color="#0a0d07" />
+        <ScrollZoom
+          eyebrow={groupLabel}
+          title={service.h1}
+          image={service.group === "organic" ? c.services.image : c.experience.images[1]}
+          items={service.included}
+        />
+
+        <BgMark color="#ffffff" />
         <section className="section page-section">
           <div className="container">
             <h2 className="h2">What's included</h2>
@@ -74,6 +86,7 @@ export default async function ServiceSubpage({ params }) {
           </div>
         </section>
 
+        <BgMark color="#eef1e4" />
         <Faq
           data={{
             chip: "Questions",
@@ -83,14 +96,17 @@ export default async function ServiceSubpage({ params }) {
           }}
         />
 
+        <BgMark color="#ffffff" />
         <CtaBand
           title={["Let's talk about ", { i: service.name.toLowerCase() }]}
           text="Book a short call — we'll tell you honestly whether this is the right fit before anything else."
           primary={{ label: "Book a call", href: "/contact/" }}
           secondary={{ label: "See results", href: "/results/" }}
         />
+        <BgMark color="#fbfcf8" />
       </main>
       <Footer brand={c.brand.name} data={c.footer} />
+      <ScrollBg />
     </>
   );
 }

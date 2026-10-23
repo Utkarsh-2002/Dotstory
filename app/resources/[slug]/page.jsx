@@ -5,6 +5,7 @@ import PageHero from "../../../components/PageHero";
 import CtaBand from "../../../components/CtaBand";
 import Faq from "../../../components/Faq";
 import JsonLd from "../../../components/JsonLd";
+import ScrollBg, { BgMark } from "../../../components/ScrollBg";
 import * as c from "../../../lib/content";
 import { RESOURCES, getResourceBySlug } from "../../../lib/resources";
 import { getServiceBySlug } from "../../../lib/services";
@@ -59,7 +60,9 @@ export default async function ResourceArticle({ params }) {
       />
       <Nav brand={c.brand.name} links={c.nav} />
       <main>
+        <BgMark color="#fbfcf8" />
         <PageHero breadcrumbs={breadcrumbs} title={r.title} text={r.intro} />
+        <BgMark color="#ffffff" />
         <div className="container">
           <p className="article-meta center">
             <span>{r.author}</span>
@@ -81,6 +84,7 @@ export default async function ResourceArticle({ params }) {
           </div>
         </section>
 
+        <BgMark color="#eef1e4" />
         <Faq
           data={{
             chip: "Questions",
@@ -90,6 +94,7 @@ export default async function ResourceArticle({ params }) {
           }}
         />
 
+        <BgMark color="#ffffff" />
         <CtaBand
           title={relatedService ? ["See how we do ", { i: relatedService.name.toLowerCase() }] : ["Want to talk this ", { i: "through" }, "?"]}
           primary={
@@ -99,8 +104,10 @@ export default async function ResourceArticle({ params }) {
           }
           secondary={{ label: "More resources", href: "/resources/" }}
         />
+        <BgMark color="#fbfcf8" />
       </main>
       <Footer brand={c.brand.name} data={c.footer} />
+      <ScrollBg />
     </>
   );
 }

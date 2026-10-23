@@ -3,6 +3,8 @@ import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import CtaBand from "../../components/CtaBand";
 import JsonLd from "../../components/JsonLd";
+import ScrollBg, { BgMark } from "../../components/ScrollBg";
+import ScrollZoom from "../../components/ScrollZoom";
 import { Media } from "../../components/ui";
 import * as c from "../../lib/content";
 import { TEAM } from "../../lib/team";
@@ -30,6 +32,7 @@ export default function About() {
       />
       <Nav brand={c.brand.name} links={c.nav} />
       <main>
+        <BgMark color="#fbfcf8" />
         <PageHero
           breadcrumbs={breadcrumbs}
           kicker="About"
@@ -37,6 +40,15 @@ export default function About() {
           text={`${c.brand.name} is a growth team for B2B tech companies above $10M ARR — we run organic and paid together, instead of as two disconnected efforts.`}
         />
 
+        <BgMark color="#0a0d07" />
+        <ScrollZoom
+          eyebrow="About"
+          title={["Who's behind the ", { i: "work" }]}
+          image={c.hero.images[1]}
+          items={TEAM.map((t) => ({ label: t.name, text: t.bio }))}
+        />
+
+        <BgMark color="#ffffff" />
         <section className="section page-section">
           <div className="container">
             <h2 className="h2">Why organic and paid, together</h2>
@@ -64,13 +76,16 @@ export default function About() {
           </div>
         </section>
 
+        <BgMark color="#eef1e4" />
         <CtaBand
           title={["Want to ", { i: "work" }, " with us?"]}
           primary={{ label: "Book a call", href: "/contact/" }}
           secondary={{ label: "See our services", href: "/services/" }}
         />
+        <BgMark color="#fbfcf8" />
       </main>
       <Footer brand={c.brand.name} data={c.footer} />
+      <ScrollBg />
     </>
   );
 }

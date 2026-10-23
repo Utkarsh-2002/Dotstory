@@ -2,6 +2,7 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import JsonLd from "../../components/JsonLd";
+import ScrollBg, { BgMark } from "../../components/ScrollBg";
 import { Button } from "../../components/ui";
 import * as c from "../../lib/content";
 import { breadcrumbSchema, contactPageSchema } from "../../lib/schema";
@@ -19,6 +20,7 @@ export default function Contact() {
       <JsonLd data={[breadcrumbSchema(breadcrumbs), contactPageSchema({ url: "/contact/" })]} />
       <Nav brand={c.brand.name} links={c.nav} />
       <main>
+        <BgMark color="#fbfcf8" />
         <PageHero
           breadcrumbs={breadcrumbs}
           kicker="Contact"
@@ -26,6 +28,7 @@ export default function Contact() {
           text="Tell us what you're trying to grow — we'll follow up within one business day."
         />
 
+        <BgMark color="#eef1e4" />
         <section className="section page-section">
           <div className="container">
             <div className="contact-grid">
@@ -64,8 +67,10 @@ export default function Contact() {
             </div>
           </div>
         </section>
+        <BgMark color="#fbfcf8" />
       </main>
       <Footer brand={c.brand.name} data={c.footer} />
+      <ScrollBg />
     </>
   );
 }

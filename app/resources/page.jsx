@@ -3,6 +3,7 @@ import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import CtaBand from "../../components/CtaBand";
 import JsonLd from "../../components/JsonLd";
+import ScrollBg, { BgMark } from "../../components/ScrollBg";
 import * as c from "../../lib/content";
 import { RESOURCES } from "../../lib/resources";
 import { breadcrumbSchema, collectionPageSchema } from "../../lib/schema";
@@ -34,6 +35,7 @@ export default function ResourcesPillar() {
       />
       <Nav brand={c.brand.name} links={c.nav} />
       <main>
+        <BgMark color="#fbfcf8" />
         <PageHero
           breadcrumbs={breadcrumbs}
           kicker="Resources"
@@ -41,6 +43,7 @@ export default function ResourcesPillar() {
           text="Straight answers to the questions prospects — and the AI tools they ask — are actually searching for."
         />
 
+        <BgMark color="#eef1e4" />
         <section className="section page-section">
           <div className="container">
             <div className="resource-grid">
@@ -58,13 +61,16 @@ export default function ResourcesPillar() {
           </div>
         </section>
 
+        <BgMark color="#ffffff" />
         <CtaBand
           title={["Have a question we ", { i: "haven't" }, " answered?"]}
           primary={{ label: "Ask us directly", href: "/contact/" }}
           secondary={{ label: "See the full FAQ", href: "/faq/" }}
         />
+        <BgMark color="#fbfcf8" />
       </main>
       <Footer brand={c.brand.name} data={c.footer} />
+      <ScrollBg />
     </>
   );
 }

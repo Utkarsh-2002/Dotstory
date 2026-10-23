@@ -4,11 +4,18 @@ import Footer from "../../../components/Footer";
 import PageHero from "../../../components/PageHero";
 import CtaBand from "../../../components/CtaBand";
 import JsonLd from "../../../components/JsonLd";
-import { Framed } from "../../../components/ui";
+import ScrollBg, { BgMark } from "../../../components/ScrollBg";
+import ScrollZoom from "../../../components/ScrollZoom";
 import * as c from "../../../lib/content";
 import { CASE_STUDIES, getCaseBySlug } from "../../../lib/caseStudies";
 import { getServiceBySlug } from "../../../lib/services";
 import { breadcrumbSchema, articleSchema } from "../../../lib/schema";
+
+// "+58% Pipeline" -> { value: "+58%", label: "Pipeline" }
+function splitMetric(m) {
+  const i = m.indexOf(" ");
+  return i === -1 ? { value: m, label: "" } : { value: m.slice(0, i), label: m.slice(i + 1) };
+}
 
 export function generateStaticParams() {
   return CASE_STUDIES.map((cs) => ({ slug: cs.slug }));
@@ -48,12 +55,15 @@ export default async function CaseStudyPage({ params }) {
       />
       <Nav brand={c.brand.name} links={c.nav} />
       <main>
+        <BgMark color="#fbfcf8" />
         <PageHero breadcrumbs={breadcrumbs} kicker={cs.tags[0]} title={cs.title} text={cs.summary} />
 
+        <BgMark color="#0a0d07" />
+        <ScrollZoom eyebrow={cs.tags[0]} title={cs.title} image={cs.image} items={cs.metrics.map(splitMetric)} />
+
+        <BgMark color="#ffffff" />
         <section className="section page-section">
           <div className="container">
-            <Framed {...cs.image} className="case-img" style={{ maxWidth: 760, margin: "0 auto" }} />
-
             <div className="case-metrics-row">
               {cs.metrics.map((m) => (
                 <span key={m} className="metric center">
@@ -92,6 +102,7 @@ export default async function CaseStudyPage({ params }) {
           </div>
         </section>
 
+        <BgMark color="#eef1e4" />
         <CtaBand
           title={["Want to talk through your ", { i: "own" }, " numbers?"]}
           primary={{ label: "Book a call", href: "/contact/" }}
@@ -101,8 +112,10 @@ export default async function CaseStudyPage({ params }) {
               : { label: "See our services", href: "/services/" }
           }
         />
+        <BgMark color="#fbfcf8" />
       </main>
       <Footer brand={c.brand.name} data={c.footer} />
+      <ScrollBg />
     </>
   );
 }

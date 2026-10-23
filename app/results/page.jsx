@@ -3,6 +3,7 @@ import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import CtaBand from "../../components/CtaBand";
 import JsonLd from "../../components/JsonLd";
+import ScrollBg, { BgMark } from "../../components/ScrollBg";
 import { Framed } from "../../components/ui";
 import * as c from "../../lib/content";
 import { CASE_STUDIES } from "../../lib/caseStudies";
@@ -31,6 +32,7 @@ export default function ResultsPillar() {
       />
       <Nav brand={c.brand.name} links={c.nav} />
       <main>
+        <BgMark color="#fbfcf8" />
         <PageHero
           breadcrumbs={breadcrumbs}
           kicker="Results"
@@ -39,6 +41,7 @@ export default function ResultsPillar() {
           primary={{ label: "Book a call", href: "/contact/" }}
         />
 
+        <BgMark color="#eef1e4" />
         <section className="section page-section">
           <div className="container">
             <div className="results-grid">
@@ -59,14 +62,17 @@ export default function ResultsPillar() {
           </div>
         </section>
 
+        <BgMark color="#ffffff" />
         <CtaBand
           title={["Want results like ", { i: "these" }, "?"]}
           text="Tell us about your goals and we'll map out what an organic and paid program could look like for you."
           primary={{ label: "Book a call", href: "/contact/" }}
           secondary={{ label: "See our services", href: "/services/" }}
         />
+        <BgMark color="#fbfcf8" />
       </main>
       <Footer brand={c.brand.name} data={c.footer} />
+      <ScrollBg />
     </>
   );
 }

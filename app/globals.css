@@ -772,9 +772,22 @@ section[id] { scroll-margin-top: 90px; }
   transition: opacity 0.1s linear;
   pointer-events: none;
 }
-.zoom-panel { position: relative; padding: 0 var(--gap, 56px) 0 48px; color: #fff; z-index: 2; }
-.zoom-title { color: #fff; margin-top: 14px; }
-.zoom-items { margin-top: 32px; display: grid; gap: 22px; }
+.zoom-panel {
+  position: relative;
+  padding: 0 var(--gap, 56px) 0 48px;
+  color: #fff;
+  z-index: 2;
+  /* Reserve clearance for the fixed nav at the top (and matching room at the
+     bottom) so the title can never land underneath it, no matter how much
+     item copy a given page has. */
+  max-height: calc(100vh - 176px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.zoom-title { color: #fff; margin-top: 14px; font-size: clamp(26px, 3.4vw, 44px); }
+.zoom-items { margin-top: 26px; display: grid; gap: 16px; }
 .zoom-item {
   display: flex;
   align-items: baseline;
@@ -783,13 +796,13 @@ section[id] { scroll-margin-top: 90px; }
   transform: translateX(-10px);
   transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
   border-top: 1px solid rgba(255, 255, 255, 0.16);
-  padding-top: 18px;
+  padding-top: 14px;
 }
 .zoom-items .zoom-item:first-child { border-top: none; padding-top: 0; }
 .zoom-item.on { opacity: 1; transform: none; }
-.zoom-item-value { font-family: var(--mono); font-size: 26px; font-weight: 500; color: #d7e3c4; flex: 0 0 auto; min-width: 72px; }
-.zoom-item h4 { color: #fff; font-size: 16px; }
-.zoom-item p { color: rgba(255, 255, 255, 0.78); margin-top: 6px; font-size: 14px; max-width: 320px; }
+.zoom-item-value { font-family: var(--mono); font-size: 22px; font-weight: 500; color: #d7e3c4; flex: 0 0 auto; min-width: 64px; }
+.zoom-item h4 { color: #fff; font-size: 15px; }
+.zoom-item p { color: rgba(255, 255, 255, 0.78); margin-top: 4px; font-size: 13px; line-height: 1.45; max-width: 320px; }
 .pin-nav { position: absolute; z-index: 2; right: 28px; bottom: 28px; display: flex; gap: 16px; }
 .pin-dot { font-family: var(--mono); font-size: 11px; color: rgba(255, 255, 255, 0.5); transition: color 0.3s; }
 .pin-dot.on { color: #fff; }
@@ -831,7 +844,7 @@ section[id] { scroll-margin-top: 90px; }
   .cursor-glow { width: 320px; height: 320px; }
   .zoom-sticky { grid-template-columns: 1fr; }
   .zoom-media { position: absolute; inset: 0; height: 100%; }
-  .zoom-panel { position: relative; padding: 24px; background: linear-gradient(180deg, rgba(10, 13, 7, 0) 0%, rgba(10, 13, 7, 0.55) 30%, rgba(10, 13, 7, 0.92) 100%); height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 32px; }
+  .zoom-panel { position: relative; padding: 24px; background: linear-gradient(180deg, rgba(10, 13, 7, 0) 0%, rgba(10, 13, 7, 0.55) 30%, rgba(10, 13, 7, 0.92) 100%); height: 100%; max-height: none; overflow: visible; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 32px; }
   .zoom-items { margin-top: 20px; gap: 14px; }
 }
 
@@ -856,4 +869,5 @@ section[id] { scroll-margin-top: 90px; }
   .zoom-media .media.zoom-img { transform: none !important; }
   .zoom-dark { opacity: 0.3 !important; }
   .zoom-item { opacity: 1; transform: none; }
+  .zoom-panel { max-height: none; overflow: visible; padding: 32px var(--gap, 56px) 40px 48px; }
 }

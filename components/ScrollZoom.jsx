@@ -56,6 +56,7 @@ export default function ScrollZoom({ eyebrow, title, image, items = [] }) {
   const scale = 1 + p * 0.3;
   const darken = Math.min(0.78, p * 0.85);
   const activeIdx = items.length ? Math.min(items.length - 1, Math.floor(p * items.length)) : -1;
+  const titleParts = typeof title === "string" ? [title] : title;
 
   return (
     <section
@@ -77,19 +78,22 @@ export default function ScrollZoom({ eyebrow, title, image, items = [] }) {
           {eyebrow && <Chip>{eyebrow}</Chip>}
           {title && (
             <h2 className="h2 zoom-title">
-              <Rich parts={title} />
+              <Rich parts={titleParts} />
             </h2>
           )}
           <div className="zoom-items">
-            {items.map((it, i) => (
-              <div key={i} className={`zoom-item ${i <= activeIdx ? "on" : ""}`}>
-                <span className="zoom-item-value">{it.value}</span>
-                <div>
-                  <h4>{it.label}</h4>
-                  <p>{it.text}</p>
+            {items.map((raw, i) => {
+              const it = typeof raw === "string" ? { value: String(i + 1).padStart(2, "0"), label: raw } : raw;
+              return (
+                <div key={i} className={`zoom-item ${i <= activeIdx ? "on" : ""}`}>
+                  <span className="zoom-item-value">{it.value}</span>
+                  <div>
+                    {it.label && <h4>{it.label}</h4>}
+                    {it.text && <p>{it.text}</p>}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
