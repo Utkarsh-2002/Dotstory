@@ -44,39 +44,41 @@ export default function ScrollBg() {
         .sort((a, b) => a.top - b.top);
     };
 
-    // Flat colour per section, with a short crossfade band right where one
-    // section's marker gives way to the next — not a drift spread across
-    // the whole (sometimes very tall) gap between markers.
-    const BAND = 260;
-
+    // Continuous — the colour drifts the whole way between one marker and
+    // the next, so it's always visibly moving as you scroll (never holds
+    // flat for a long stretch and then snaps).
     const apply = () => {
       raf = null;
       const stops = stopsRef.current;
       if (!stops.length) return;
-      const centerY = window.scrollY + window.innerHeight * 0.5;
+      // Anchored on the viewport's top edge, not its centre: centre-anchoring
+      // made the colour start drifting toward the next (sometimes much
+      // darker) zone before the page had even been scrolled, which read as
+      // a muddy tint sitting over the hero at rest. Top-anchoring means the
+      // blend only progresses as far as the user has actually scrolled.
+      const centerY = window.scrollY;
 
-      let idx = 0;
-      for (let i = 0; i < stops.length; i++) {
-        if (stops[i].top <= centerY) idx = i;
-        else break;
-      }
-
-      let color = stops[idx].color;
-      if (idx > 0) {
-        const distAfterBoundary = centerY - stops[idx].top;
-        if (distAfterBoundary < BAND) {
-          const t = Math.max(0, Math.min(1, distAfterBoundary / BAND));
-          color = [
-            lerp(stops[idx - 1].color[0], stops[idx].color[0], t),
-            lerp(stops[idx - 1].color[1], stops[idx].color[1], t),
-            lerp(stops[idx - 1].color[2], stops[idx].color[2], t),
-          ];
+      let a = stops[0];
+      let b = stops[stops.length - 1];
+      let t = 0;
+      if (centerY <= stops[0].top) {
+        a = b = stops[0];
+      } else if (centerY >= stops[stops.length - 1].top) {
+        a = b = stops[stops.length - 1];
+      } else {
+        for (let i = 0; i < stops.length - 1; i++) {
+          if (centerY >= stops[i].top && centerY <= stops[i + 1].top) {
+            a = stops[i];
+            b = stops[i + 1];
+            t = (centerY - a.top) / Math.max(1, b.top - a.top);
+            break;
+          }
         }
       }
 
-      const r = Math.round(color[0]);
-      const g = Math.round(color[1]);
-      const bl = Math.round(color[2]);
+      const r = Math.round(lerp(a.color[0], b.color[0], t));
+      const g = Math.round(lerp(a.color[1], b.color[1], t));
+      const bl = Math.round(lerp(a.color[2], b.color[2], t));
       root.style.setProperty("--bg", `rgb(${r}, ${g}, ${bl})`);
     };
 

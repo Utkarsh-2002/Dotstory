@@ -807,48 +807,6 @@ section[id] { scroll-margin-top: 90px; }
 .pin-dot { font-family: var(--mono); font-size: 11px; color: rgba(255, 255, 255, 0.5); transition: color 0.3s; }
 .pin-dot.on { color: #fff; }
 
-/* =====================================================================
-   Ambient field — the page-wide atmosphere the flat background colour
-   was missing: a soft drifting light source plus a fine film-grain
-   texture laid over everything (sections, pinned photos, all of it) via
-   blend modes, instead of plain solid fills. Fixed to the viewport, so
-   it reads as one continuous light source rather than scrolling away.
-   ===================================================================== */
-.ambient-field { position: fixed; inset: 0; z-index: 45; pointer-events: none; overflow: hidden; }
-.ambient-glow {
-  position: absolute;
-  top: -12vh;
-  right: -14vw;
-  width: 58vw;
-  height: 58vw;
-  max-width: 880px;
-  max-height: 880px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(201, 234, 146, 0.55) 0%, rgba(201, 234, 146, 0.2) 45%, rgba(201, 234, 146, 0) 72%);
-  filter: blur(6px);
-  mix-blend-mode: screen;
-}
-.ambient-vignette {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse 95% 60% at 50% 0%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 55%),
-    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(10, 13, 7, 0.14) 0%, rgba(10, 13, 7, 0) 60%);
-  mix-blend-mode: soft-light;
-}
-.ambient-grain {
-  position: absolute;
-  inset: -4px;
-  opacity: 0.07;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  background-size: 180px 180px;
-}
-@media (max-width: 900px) {
-  .ambient-glow { width: 90vw; height: 90vw; top: -10vh; right: -30vw; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ambient-glow { filter: none; }
-}
 
 /* =====================================================================
    Responsive
