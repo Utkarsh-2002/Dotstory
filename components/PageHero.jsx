@@ -1,5 +1,4 @@
 import Reveal from "./Reveal";
-import CursorField from "./CursorField";
 import { Button, Chip, Rich } from "./ui";
 import Breadcrumbs from "./Breadcrumbs";
 
@@ -10,7 +9,7 @@ export default function PageHero({ breadcrumbs, kicker, title, text, primary, se
     <section className="page-hero">
       <div className="container">
         <Breadcrumbs items={breadcrumbs} />
-        <CursorField className="page-hero-field">
+        <div className="page-hero-field">
           <Reveal className="center">
             {kicker && <Chip>{kicker}</Chip>}
             <h1 className="h1 page-hero-title">
@@ -28,7 +27,7 @@ export default function PageHero({ breadcrumbs, kicker, title, text, primary, se
               </div>
             )}
           </Reveal>
-        </CursorField>
+        </div>
       </div>
     </section>
   );
