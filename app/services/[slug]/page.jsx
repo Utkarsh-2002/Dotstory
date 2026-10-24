@@ -5,7 +5,7 @@ import PageHero from "../../../components/PageHero";
 import CtaBand from "../../../components/CtaBand";
 import Faq from "../../../components/Faq";
 import JsonLd from "../../../components/JsonLd";
-import ScrollBg, { BgMark } from "../../../components/ScrollBg";
+import { BgMark } from "../../../components/ScrollBg";
 import ScrollZoom from "../../../components/ScrollZoom";
 import { Icon } from "../../../components/ui";
 import * as c from "../../../lib/content";
@@ -106,7 +106,6 @@ export default async function ServiceSubpage({ params }) {
         <BgMark color="#fbfcf8" />
       </main>
       <Footer brand={c.brand.name} data={c.footer} />
-      <ScrollBg />
     </>
   );
 }

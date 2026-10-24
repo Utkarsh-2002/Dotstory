@@ -7,6 +7,7 @@ import { brand } from "../lib/content";
 import { organizationSchema, websiteSchema } from "../lib/schema";
 import JsonLd from "../components/JsonLd";
 import ScrollIndicator from "../components/ScrollIndicator";
+import ScrollBg from "../components/ScrollBg";
 import CursorHalo from "../components/CursorHalo";
 import GrainLayer from "../components/GrainLayer";
 
@@ -35,6 +36,7 @@ export default function RootLayout({ children }) {
         <JsonLd data={[organizationSchema(), websiteSchema()]} />
       </head>
       <body>
+        <ScrollBg />
         {children}
         <ScrollIndicator />
         <CursorHalo />

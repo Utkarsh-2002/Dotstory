@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+// A full-screen WebGL layer that draws a soft, organic light around the
+// cursor — tuned to the Oevra reference: a 12-point trail of wobbling
+// halos (egg-shaped lobes, two sine layers), a wide soft glow plus a thin
+// ring, a slow eased follow (0.08 per 60fps frame), and a halo that swells
+// ~1.4x over links and buttons. It's a real-time fragment shader, not a
+// styled div. Colours follow the page theme (light / dark sections) via
+// themeState. Disabled on touch devices and for prefers-reduced-motion.
 
-// A full-screen WebGL layer that draws a soft organic light trailing the
-// cursor — a chain of blended, wobbling halos that fade out along the
-// trail, redrawn every frame. A CSS radial-gradient can't do this: it's a
-// real-time fragment shader, not a styled div. Disabled on touch devices
-// and for prefers-reduced-motion.
+import { themeState } from "../lib/themeState";
 
-const TRAIL_LEN = 9;
+const TRAIL_LEN = 12;
 
 const VERTEX_SRC = `
 attribute vec2 aPosition;
@@ -29,13 +32,23 @@ uniform int uTrailCount;
 uniform vec3 uColor;
 uniform vec3 uOutlineColor;
 uniform float uHaloSize;
+uniform float uGlow;
+uniform float uOutlineOpacity;
+
+const float GLOW_MUL = 2.0;
+const float ORGANIC_AMP = 0.4;
+const float ORGANIC_FREQ = 1.0;
+const float WOBBLE_SPEED = 1.2;
 
 void main() {
   vec2 uv = vUv;
   float aspect = uResolution.x / uResolution.y;
   uv.x *= aspect;
 
-  vec3 col = vec3(0.0);
+  // Premultiplied accumulation: each layer composites OVER the last, so
+  // the final colour is the true blend of halo/ring colours — mixing into
+  // black (the old approach) turned the glow into a dark smudge.
+  vec3 pm = vec3(0.0);
   float alpha = 0.0;
 
   for (int i = 0; i < ${TRAIL_LEN}; i++) {
@@ -46,41 +59,34 @@ void main() {
     float angle = atan(rel.y, rel.x);
 
     float falloff = 1.0 - float(i) / float(uTrailCount);
-    falloff = pow(falloff, 1.7);
+    falloff = pow(falloff, 1.8);
+    float sizeScale = 0.8 + 0.5 * falloff;
 
-    // A scalloped, flower-like ring rather than a soft round blob — more
-    // lobes, stronger distortion, so the shape itself reads as deliberate
-    // rather than a blurred smear.
-    float wobble = 0.55 * sin(angle * 5.0 + uTime * 1.2 + float(i) * 0.4);
-    wobble += 0.3 * sin(angle * 8.0 - uTime * 1.7 + float(i) * 0.65);
-    float lobes = 1.0 + 0.22 * wobble;
-    float d = r / max(lobes, 0.3);
+    // Two layered sine waves around the edge — the "living blob" outline.
+    float wobble = 0.7 * sin(angle * ORGANIC_FREQ + uTime * WOBBLE_SPEED + float(i) * 0.3);
+    wobble += 0.3 * sin(angle * (ORGANIC_FREQ * 2.0) - uTime * (WOBBLE_SPEED * 1.35) + float(i) * 0.6);
+    float lobes = 1.0 + ORGANIC_AMP * wobble;
+    float d = r / max(lobes, 0.25);
 
-    float size = uHaloSize * (0.75 + 0.45 * falloff);
-    // Mostly hollow: a faint inner wash plus a crisp, bright ring, instead
-    // of a filled disc — reads as a small halo, not a blurry patch.
-    // smoothstep(edge0, edge1, x) is only defined for edge0 < edge1 — an
-    // inverted-edge call (used here in an earlier draft to get a falling
-    // ramp) is undefined by spec, and at least one real GLSL implementation
-    // resolves it to a flat 0 instead of the "flipped ramp" most GPUs
-    // happen to return. Build each falling ramp explicitly as 1 - rise.
-    float wash = 1.0 - smoothstep(0.0, size * 0.8, d);
-    float washStrength = wash * 0.1 * falloff;
-    col = mix(col, uColor, washStrength);
-    alpha = max(alpha, washStrength);
+    float size = uHaloSize * sizeScale;
 
-    float outlineOuter = size * 1.08;
-    float outlineInner = size * 0.72;
-    float outlineRise = smoothstep(size * 0.42, outlineInner, d);
-    float outlineFall = 1.0 - smoothstep(outlineInner, outlineOuter, d);
-    float outline = outlineRise * outlineFall;
-    float outlineStrength = outline * 0.55 * falloff;
-    col = mix(col, uOutlineColor, outlineStrength);
-    col += uOutlineColor * outlineStrength * 0.4;
-    alpha = max(alpha, outlineStrength);
+    // Wide soft glow. smoothstep(edge0, edge1, x) is only defined for
+    // edge0 < edge1, so every falling ramp is written as 1 - rise.
+    float glow = 1.0 - smoothstep(size, size * GLOW_MUL, d);
+    float glowStrength = glow * uGlow * falloff;
+    pm = pm * (1.0 - glowStrength) + uColor * glowStrength;
+    alpha = alpha * (1.0 - glowStrength) + glowStrength;
+
+    // Thin ring hugging the edge: crisp head, fainter along the trail.
+    float rise = smoothstep(size * 0.78, size * 0.97, d);
+    float fall = 1.0 - smoothstep(size * 0.97, size * 1.16, d);
+    float ring = rise * fall;
+    float ringStrength = ring * uOutlineOpacity * (i == 0 ? falloff : 0.3);
+    pm = pm * (1.0 - ringStrength) + uOutlineColor * ringStrength;
+    alpha = alpha * (1.0 - ringStrength) + ringStrength;
   }
 
-  gl_FragColor = vec4(col, alpha);
+  gl_FragColor = vec4(pm / max(alpha, 0.0001), alpha);
 }
 `;
 
@@ -95,12 +101,21 @@ function compile(gl, type, src) {
   return shader;
 }
 
-function hexToVec3(hex) {
-  const n = hex.replace("#", "");
-  const v = n.length === 3 ? n.split("").map((c) => c + c).join("") : n;
-  const num = parseInt(v, 16);
-  return [((num >> 16) & 255) / 255, ((num >> 8) & 255) / 255, (num & 255) / 255];
-}
+const mix3 = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+const rgb = (r, g, b) => [r / 255, g / 255, b / 255];
+
+// Colours per situation. "light" = over pale sections, "dark" = over the
+// near-black ones; "hover" = over a link or button (Oevra turns the halo
+// olive there and swells it).
+const HALO_LIGHT = rgb(185, 255, 128);
+const HALO_DARK = rgb(215, 227, 196);
+const HALO_HOVER_LIGHT = rgb(86, 120, 59);
+const HALO_HOVER_DARK = rgb(234, 255, 194);
+const RING_LIGHT = rgb(95, 122, 53);
+const RING_DARK = rgb(234, 255, 194);
+
+const BASE_SIZE = 0.12;
+const INTERACTIVE = "a, button, [role='button'], summary, input, textarea, [data-halo-size]";
 
 export default function CursorHalo() {
   const canvasRef = useRef(null);
@@ -134,20 +149,20 @@ export default function CursorHalo() {
     gl.enableVertexAttribArray(aPosition);
     gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
 
-    const uResolution = gl.getUniformLocation(program, "uResolution");
-    const uTime = gl.getUniformLocation(program, "uTime");
-    const uTrail = gl.getUniformLocation(program, "uTrail");
-    const uTrailCount = gl.getUniformLocation(program, "uTrailCount");
-    const uColor = gl.getUniformLocation(program, "uColor");
-    const uOutlineColor = gl.getUniformLocation(program, "uOutlineColor");
-    const uHaloSize = gl.getUniformLocation(program, "uHaloSize");
+    const u = (n) => gl.getUniformLocation(program, n);
+    const uResolution = u("uResolution");
+    const uTime = u("uTime");
+    const uTrail = u("uTrail");
+    const uTrailCount = u("uTrailCount");
+    const uColor = u("uColor");
+    const uOutlineColor = u("uOutlineColor");
+    const uHaloSize = u("uHaloSize");
+    const uGlow = u("uGlow");
+    const uOutlineOpacity = u("uOutlineOpacity");
 
     gl.enable(gl.BLEND);
     gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.clearColor(0, 0, 0, 0);
-
-    const color = hexToVec3("#5f7a35");
-    const outlineColor = hexToVec3("#eaffc2");
 
     let dpr = Math.min(window.devicePixelRatio || 1, 1.75);
     let width = 0;
@@ -162,24 +177,28 @@ export default function CursorHalo() {
     };
 
     // Trail: point 0 eases toward the raw cursor; each later point eases
-    // toward the one before it — a chain, so the whole thing flows rather
-    // than snapping to each new mouse position.
+    // toward the one before it, so the whole thing flows instead of
+    // snapping to each new mouse position.
     const trail = new Float32Array(TRAIL_LEN * 2);
     const target = { x: 0, y: 0 };
     let haveTarget = false;
     let active = false;
     let raf = null;
-    let startTime = performance.now();
+    const startTime = performance.now();
+    let last = startTime;
     let hidden = document.hidden;
 
+    // Hover state — size and colour ease toward their targets.
+    let hoverTarget = 0; // 0 = normal, 1 = over a link/button
+    let hoverT = 0;
+    let sizeMul = 1; // current size multiplier
+    let sizeMulTarget = 1;
+
     // Matches the shader's own `uv.x *= aspect` — the trail must live in
-    // the same aspect-corrected space the fragment shader compares it
-    // against, or the two coordinate systems drift apart off-center.
+    // the same aspect-corrected space the fragment shader compares it to.
     const toUv = (clientX, clientY) => {
       const aspect = width / height;
-      const ux = ((clientX / width) * 2 - 1) * aspect;
-      const uy = -((clientY / height) * 2 - 1);
-      return [ux, uy];
+      return [((clientX / width) * 2 - 1) * aspect, -((clientY / height) * 2 - 1)];
     };
 
     const onMove = (e) => {
@@ -192,6 +211,15 @@ export default function CursorHalo() {
           trail[i * 2] = ux;
           trail[i * 2 + 1] = uy;
         }
+      }
+      const el = e.target && e.target.closest ? e.target.closest(INTERACTIVE) : null;
+      if (el) {
+        const attr = parseFloat(el.getAttribute("data-halo-size"));
+        hoverTarget = 1;
+        sizeMulTarget = Number.isFinite(attr) ? attr : 1.4;
+      } else {
+        hoverTarget = 0;
+        sizeMulTarget = 1;
       }
       if (!active) {
         active = true;
@@ -214,19 +242,36 @@ export default function CursorHalo() {
       if (!raf && !hidden) raf = requestAnimationFrame(frame);
     };
 
-    const HEAD_EASE = 0.24;
-    const CHAIN_EASE = 0.5;
+    const HEAD_EASE = 0.08; // Oevra: 0.08 per 60fps frame
+    const CHAIN_EASE = 0.55;
 
     const frame = (now) => {
       raf = null;
       if (hidden) return;
 
-      trail[0] += (target.x - trail[0]) * HEAD_EASE;
-      trail[1] += (target.y - trail[1]) * HEAD_EASE;
+      // Frame-rate independent easing (60fps = 1.0).
+      const k = Math.min((now - last) / 16.667, 3);
+      last = now;
+      const head = Math.min(HEAD_EASE * k, 1);
+      const chain = Math.min(CHAIN_EASE * k, 1);
+
+      trail[0] += (target.x - trail[0]) * head;
+      trail[1] += (target.y - trail[1]) * head;
       for (let i = 1; i < TRAIL_LEN; i++) {
-        trail[i * 2] += (trail[(i - 1) * 2] - trail[i * 2]) * CHAIN_EASE;
-        trail[i * 2 + 1] += (trail[(i - 1) * 2 + 1] - trail[i * 2 + 1]) * CHAIN_EASE;
+        trail[i * 2] += (trail[(i - 1) * 2] - trail[i * 2]) * chain;
+        trail[i * 2 + 1] += (trail[(i - 1) * 2 + 1] - trail[i * 2 + 1]) * chain;
       }
+
+      // Swell slowly (~2s in Oevra), relax faster (~0.6s).
+      const sizeEase = (sizeMulTarget > sizeMul ? 0.05 : 0.12) * k;
+      sizeMul += (sizeMulTarget - sizeMul) * Math.min(sizeEase, 1);
+      hoverT += (hoverTarget - hoverT) * Math.min(0.14 * k, 1);
+
+      const dark = themeState.dark;
+      const base = mix3(HALO_LIGHT, HALO_DARK, dark);
+      const hov = mix3(HALO_HOVER_LIGHT, HALO_HOVER_DARK, dark);
+      const color = mix3(base, hov, hoverT);
+      const ring = mix3(RING_LIGHT, RING_DARK, dark);
 
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform2f(uResolution, width, height);
@@ -234,12 +279,17 @@ export default function CursorHalo() {
       gl.uniform2fv(uTrail, trail);
       gl.uniform1i(uTrailCount, TRAIL_LEN);
       gl.uniform3f(uColor, color[0], color[1], color[2]);
-      gl.uniform3f(uOutlineColor, outlineColor[0], outlineColor[1], outlineColor[2]);
-      gl.uniform1f(uHaloSize, 0.14);
+      gl.uniform3f(uOutlineColor, ring[0], ring[1], ring[2]);
+      gl.uniform1f(uHaloSize, BASE_SIZE * sizeMul);
+      gl.uniform1f(uGlow, 0.075 - 0.03 * hoverT);
+      gl.uniform1f(uOutlineOpacity, 0.42);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
 
       const settled =
-        Math.abs(target.x - trail[0]) < 0.0008 && Math.abs(target.y - trail[1]) < 0.0008;
+        Math.abs(target.x - trail[0]) < 0.0008 &&
+        Math.abs(target.y - trail[1]) < 0.0008 &&
+        Math.abs(sizeMulTarget - sizeMul) < 0.004 &&
+        Math.abs(hoverTarget - hoverT) < 0.004;
       if (active || !settled) raf = requestAnimationFrame(frame);
     };
 

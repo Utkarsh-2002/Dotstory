@@ -5,7 +5,7 @@ import PageHero from "../../components/PageHero";
 import CtaBand from "../../components/CtaBand";
 import Faq from "../../components/Faq";
 import JsonLd from "../../components/JsonLd";
-import ScrollBg, { BgMark } from "../../components/ScrollBg";
+import { BgMark } from "../../components/ScrollBg";
 import { Chip } from "../../components/ui";
 import * as c from "../../lib/content";
 import { SERVICE_GROUPS, getServicesByGroup } from "../../lib/services";
@@ -103,7 +103,6 @@ export default function ServicesPillar() {
         <BgMark color="#fbfcf8" />
       </main>
       <Footer brand={c.brand.name} data={c.footer} />
-      <ScrollBg />
     </>
   );
 }

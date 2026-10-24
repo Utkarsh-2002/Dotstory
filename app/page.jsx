@@ -10,7 +10,7 @@ import Testimonials from "../components/Testimonials";
 import Faq from "../components/Faq";
 import Cta from "../components/Cta";
 import Footer from "../components/Footer";
-import ScrollBg, { BgMark } from "../components/ScrollBg";
+import { BgMark } from "../components/ScrollBg";
 import ScrollZoom from "../components/ScrollZoom";
 import * as c from "../lib/content";
 
@@ -44,7 +44,6 @@ export default function Home() {
         <BgMark color="#fbfcf8" />
       </main>
       <Footer brand={c.brand.name} data={c.footer} />
-      <ScrollBg />
     </>
   );
 }

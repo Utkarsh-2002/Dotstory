@@ -3,7 +3,7 @@ import Footer from "../../components/Footer";
 import PageHero from "../../components/PageHero";
 import CtaBand from "../../components/CtaBand";
 import JsonLd from "../../components/JsonLd";
-import ScrollBg, { BgMark } from "../../components/ScrollBg";
+import { BgMark } from "../../components/ScrollBg";
 import { Framed } from "../../components/ui";
 import * as c from "../../lib/content";
 import { CASE_STUDIES } from "../../lib/caseStudies";
@@ -72,7 +72,6 @@ export default function ResultsPillar() {
         <BgMark color="#fbfcf8" />
       </main>
       <Footer brand={c.brand.name} data={c.footer} />
-      <ScrollBg />
     </>
   );
 }

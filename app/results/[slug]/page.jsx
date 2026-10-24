@@ -4,7 +4,7 @@ import Footer from "../../../components/Footer";
 import PageHero from "../../../components/PageHero";
 import CtaBand from "../../../components/CtaBand";
 import JsonLd from "../../../components/JsonLd";
-import ScrollBg, { BgMark } from "../../../components/ScrollBg";
+import { BgMark } from "../../../components/ScrollBg";
 import ScrollZoom from "../../../components/ScrollZoom";
 import * as c from "../../../lib/content";
 import { CASE_STUDIES, getCaseBySlug } from "../../../lib/caseStudies";
@@ -115,7 +115,6 @@ export default async function CaseStudyPage({ params }) {
         <BgMark color="#fbfcf8" />
       </main>
       <Footer brand={c.brand.name} data={c.footer} />
-      <ScrollBg />
     </>
   );
 }
