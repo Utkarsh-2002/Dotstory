@@ -8,7 +8,7 @@ import { useEffect, useRef } from "react";
 // real-time fragment shader, not a styled div. Disabled on touch devices
 // and for prefers-reduced-motion.
 
-const TRAIL_LEN = 12;
+const TRAIL_LEN = 9;
 
 const VERTEX_SRC = `
 attribute vec2 aPosition;
@@ -48,34 +48,35 @@ void main() {
     float falloff = 1.0 - float(i) / float(uTrailCount);
     falloff = pow(falloff, 1.7);
 
-    float wobble = 0.5 * sin(angle * 3.0 + uTime * 1.05 + float(i) * 0.35);
-    wobble += 0.25 * sin(angle * 5.0 - uTime * 1.5 + float(i) * 0.6);
-    float lobes = 1.0 + 0.14 * wobble;
+    // A scalloped, flower-like ring rather than a soft round blob — more
+    // lobes, stronger distortion, so the shape itself reads as deliberate
+    // rather than a blurred smear.
+    float wobble = 0.55 * sin(angle * 5.0 + uTime * 1.2 + float(i) * 0.4);
+    wobble += 0.3 * sin(angle * 8.0 - uTime * 1.7 + float(i) * 0.65);
+    float lobes = 1.0 + 0.22 * wobble;
     float d = r / max(lobes, 0.3);
 
-    float size = uHaloSize * (0.8 + 0.4 * falloff);
+    float size = uHaloSize * (0.75 + 0.45 * falloff);
+    // Mostly hollow: a faint inner wash plus a crisp, bright ring, instead
+    // of a filled disc — reads as a small halo, not a blurry patch.
     // smoothstep(edge0, edge1, x) is only defined for edge0 < edge1 — an
     // inverted-edge call (used here in an earlier draft to get a falling
     // ramp) is undefined by spec, and at least one real GLSL implementation
     // resolves it to a flat 0 instead of the "flipped ramp" most GPUs
     // happen to return. Build each falling ramp explicitly as 1 - rise.
-    float glow = 1.0 - smoothstep(size * 0.15, size * 1.7, d);
-    float core = 1.0 - smoothstep(0.0, size * 0.3, d);
+    float wash = 1.0 - smoothstep(0.0, size * 0.8, d);
+    float washStrength = wash * 0.1 * falloff;
+    col = mix(col, uColor, washStrength);
+    alpha = max(alpha, washStrength);
 
-    float glowStrength = glow * 0.42 * falloff;
-    float coreStrength = core * 0.1 * falloff;
-
-    col = mix(col, uColor, glowStrength);
-    col += uColor * coreStrength;
-    alpha = max(alpha, glowStrength + coreStrength);
-
-    float outlineOuter = size * 1.02;
-    float outlineInner = size * 0.82;
-    float outlineRise = smoothstep(size * 0.55, outlineInner, d);
+    float outlineOuter = size * 1.08;
+    float outlineInner = size * 0.72;
+    float outlineRise = smoothstep(size * 0.42, outlineInner, d);
     float outlineFall = 1.0 - smoothstep(outlineInner, outlineOuter, d);
     float outline = outlineRise * outlineFall;
-    float outlineStrength = outline * 0.22 * falloff;
+    float outlineStrength = outline * 0.55 * falloff;
     col = mix(col, uOutlineColor, outlineStrength);
+    col += uOutlineColor * outlineStrength * 0.4;
     alpha = max(alpha, outlineStrength);
   }
 
@@ -213,8 +214,8 @@ export default function CursorHalo() {
       if (!raf && !hidden) raf = requestAnimationFrame(frame);
     };
 
-    const HEAD_EASE = 0.22;
-    const CHAIN_EASE = 0.42;
+    const HEAD_EASE = 0.24;
+    const CHAIN_EASE = 0.5;
 
     const frame = (now) => {
       raf = null;
@@ -234,7 +235,7 @@ export default function CursorHalo() {
       gl.uniform1i(uTrailCount, TRAIL_LEN);
       gl.uniform3f(uColor, color[0], color[1], color[2]);
       gl.uniform3f(uOutlineColor, outlineColor[0], outlineColor[1], outlineColor[2]);
-      gl.uniform1f(uHaloSize, 0.3);
+      gl.uniform1f(uHaloSize, 0.14);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
 
       const settled =

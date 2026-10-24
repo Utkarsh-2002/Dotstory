@@ -869,3 +869,47 @@ section[id] { scroll-margin-top: 90px; }
   .zoom-item { opacity: 1; transform: none; }
   .zoom-panel { max-height: none; overflow: visible; padding: 32px var(--gap, 56px) 40px 48px; }
 }
+
+/* A constantly-jittering grain texture over the whole page. This is the
+   actual mechanism behind the "always moving" feel on the reference site:
+   not a shifting background color, but a tiny animated noise layer that
+   jitters every fraction of a second regardless of scroll position. */
+.grain-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 35;
+  overflow: hidden;
+}
+
+.grain-layer::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url(/grain.png);
+  background-size: 180px 180px;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  animation: grain-jitter 1.4s steps(4) infinite both;
+}
+
+@keyframes grain-jitter {
+  0% { transform: translate3d(0, 0, 0); }
+  10% { transform: translate3d(-4%, -3%, 0); }
+  20% { transform: translate3d(-8%, 4%, 0); }
+  30% { transform: translate3d(4%, -8%, 0); }
+  40% { transform: translate3d(-4%, 12%, 0); }
+  50% { transform: translate3d(-8%, 4%, 0); }
+  60% { transform: translate3d(12%, 0, 0); }
+  70% { transform: translate3d(8%, 0, 0); }
+  80% { transform: translate3d(-12%, 0, 0); }
+  90% { transform: translate3d(8%, 4%, 0); }
+  100% { transform: translate3d(12%, 6%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain-layer::after { animation: none; }
+}

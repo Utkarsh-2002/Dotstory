@@ -8,6 +8,7 @@ import { organizationSchema, websiteSchema } from "../lib/schema";
 import JsonLd from "../components/JsonLd";
 import ScrollIndicator from "../components/ScrollIndicator";
 import CursorHalo from "../components/CursorHalo";
+import GrainLayer from "../components/GrainLayer";
 
 export const metadata = {
   metadataBase: new URL("https://dotstory.io"),
@@ -37,6 +38,7 @@ export default function RootLayout({ children }) {
         {children}
         <ScrollIndicator />
         <CursorHalo />
+        <GrainLayer />
       </body>
     </html>
   );
