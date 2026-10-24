@@ -1,5 +1,4 @@
 import Reveal from "./Reveal";
-import CursorField from "./CursorField";
 import { Button, Framed, Icon, Rich } from "./ui";
 
 const PLATFORM_ICONS = ["play", "globe", "search", "tv", "bars", "target", "play", "globe", "search", "tv", "bars", "target"];
@@ -7,7 +6,7 @@ const PLATFORM_ICONS = ["play", "globe", "search", "tv", "bars", "target", "play
 export default function Hero({ data }) {
   return (
     <section id="top" className="hero">
-      <CursorField className="container hero-field">
+      <div className="container hero-field">
         <Reveal className="platforms">
           <p className="small">{data.platformsLabel}</p>
           <div className="platform-strip">
@@ -43,7 +42,7 @@ export default function Hero({ data }) {
             </Reveal>
           ))}
         </div>
-      </CursorField>
+      </div>
     </section>
   );
 }
